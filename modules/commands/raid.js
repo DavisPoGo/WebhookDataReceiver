@@ -205,11 +205,11 @@ async function subscription_create(MAIN, message, nickname, prefix, advanced, av
   } while(got_name == false);
 
   // RETRIEVE BOSS NAME FROM USER
-  sub.boss = await sub_collector(MAIN,'Name',nickname,message, undefined,'Respond with \'All\'  or the Raid Boss\'s name. Names are not case-sensitive.', sub,available_gyms, discord, gym_collection);
+  sub.boss = await sub_collector(MAIN,'Name',nickname,message, undefined,'Respond with \'All\', \'Egg\', or the Raid Boss\'s name. Names are not case-sensitive.', sub,available_gyms, discord, gym_collection);
   if(sub.boss == 'cancel'){ return subscription_cancel(MAIN, nickname, message, prefix, available_gyms, discord, gym_collection); }
   else if(sub.boss == 'time'){ return subscription_timedout(MAIN, nickname, message, prefix, available_gyms, discord, gym_collection); }
 
-  if(sub.boss == 'All'){
+  if(sub.boss == 'All' || sub.boss == 'Egg'){
     // RETRIEVE MIN LEVEL FROM USER
     sub.min_lvl = await sub_collector(MAIN,'Minimum Level',nickname,message,sub.boss,'Please respond with a value of 1 through 5 or type \'All\'. Type \'Cancel\' to Stop.', sub, available_gyms, discord, gym_collection);
     if(sub.min_lvl == 'cancel'){ return subscription_cancel(MAIN, nickname, message, prefix, available_gyms, discord, gym_collection); }
@@ -463,6 +463,7 @@ function sub_collector(MAIN, type, nickname, message, object, requirements, sub,
           case type.indexOf('Name') >= 0:
             switch(message.content.toLowerCase()){
               case 'all': collector.stop('All'); break;
+              case 'egg': collector.stop('Egg'); break;
               default:
                 for(let p = 1; p < 723; p++){
                   if(p == 722){ message.reply('`'+message.content+'` doesn\'t appear to be a valid Raid Boss name. Please check the spelling and try again.').then(m => m.delete(5000)).catch(console.error); }
