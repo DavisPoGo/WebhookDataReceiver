@@ -117,32 +117,36 @@ async function subscription_view(MAIN, message, nickname, prefix, available_gyms
           .setFooter('You can type \'view\', \'add\', or \'remove\'.');
 
         // TURN EACH SUBSCRIPTION INTO A FIELD
-        raid.subscriptions.forEach((sub,index) => {
-          if(sub.gym != 'All' && sub.boss != 'All'){
-            title = '#'+(index+1)+' '+sub.boss;
-            body = 'Gym: '+sub.gym+'\nFiltered by Areas: `'+sub.areas+'`';
-          } else if(sub.gym != 'All' && sub.boss == 'All' && sub.min_lvl == '1' && sub.ax_lvl == '5'){
-            title = '#'+(index+1)+' '+sub.gym;
-            body = 'All Levels`\nFiltered by Areas: `'+sub.areas+'`';
-          } else if(sub.gym != 'All' && sub.boss == 'All'){
-            title = '#'+(index+1)+' '+sub.gym;
-            body = 'Min/Max Lvl: `'+sub.min_lvl+'/'+sub.max_lvl+'`\nFiltered by Areas: `'+sub.areas+'`';
-          } else if(sub.gym == 'All' && sub.boss != 'All'){
-            title = '#'+(index+1)+' '+sub.boss;
-            body = 'All Gyms\nFiltered by Areas: `'+sub.areas+'`';
-          } else if(sub.gym == 'All' && sub.boss == 'All'){
-            if(sub.min_lvl == sub.max_lvl){
-              title = '#'+(index+1)+' Level '+sub.max_lvl+' Raids';
+        if(raid.subscriptions.length < 25){
+          raid.subscriptions.forEach((sub,index) => {
+            if(sub.gym != 'All' && sub.boss != 'All'){
+              title = '#'+(index+1)+' '+sub.boss;
+              body = 'Gym: '+sub.gym+'\nFiltered by Areas: `'+sub.areas+'`';
+            } else if(sub.gym != 'All' && sub.boss == 'All' && sub.min_lvl == '1' && sub.ax_lvl == '5'){
+              title = '#'+(index+1)+' '+sub.gym;
+              body = 'All Levels`\nFiltered by Areas: `'+sub.areas+'`';
+            } else if(sub.gym != 'All' && sub.boss == 'All'){
+              title = '#'+(index+1)+' '+sub.gym;
+              body = 'Min/Max Lvl: `'+sub.min_lvl+'/'+sub.max_lvl+'`\nFiltered by Areas: `'+sub.areas+'`';
+            } else if(sub.gym == 'All' && sub.boss != 'All'){
+              title = '#'+(index+1)+' '+sub.boss;
+              body = 'All Gyms\nFiltered by Areas: `'+sub.areas+'`';
+            } else if(sub.gym == 'All' && sub.boss == 'All'){
+              if(sub.min_lvl == sub.max_lvl){
+                title = '#'+(index+1)+' Level '+sub.max_lvl+' Raids';
+              } else{
+                title = '#'+(index+1)+' Level '+sub.min_lvl+' - '+sub.max_lvl+' Raids';
+              } body = '**All Gyms**\nFiltered by Areas: `'+sub.areas+'`';
             } else{
-              title = '#'+(index+1)+' Level '+sub.min_lvl+' - '+sub.max_lvl+' Raids';
-            } body = '**All Gyms**\nFiltered by Areas: `'+sub.areas+'`';
-          } else{
-            title = '#'+(index+1);
-            body = 'Gym: `'+sub.gym+'`\nRaid Boss: `'+sub.boss+'`\nMin/Max Lvl: `'+sub.min_lvl+'/'+sub.max_lvl+'`\nFiltered by Areas: `'+sub.areas+'`';
-          }
+              title = '#'+(index+1);
+              body = 'Gym: `'+sub.gym+'`\nRaid Boss: `'+sub.boss+'`\nMin/Max Lvl: `'+sub.min_lvl+'/'+sub.max_lvl+'`\nFiltered by Areas: `'+sub.areas+'`';
+            }
 
-          raid_subs.addField( title, body, false);
-        });
+            raid_subs.addField( title, body, false);
+          });
+        } else {
+          raid_subs.addField("Too many subscriptions to view", "", false);
+        }
 
         // SEND THE EMBED
         message.channel.send(raid_subs).catch(console.error).then( msg => {
@@ -400,11 +404,16 @@ function sub_collector(MAIN, type, nickname, message, object, requirements, sub,
           .setFooter(requirements);
 
         // TURN EACH SUBSCRIPTION INTO A FIELD
-        object.subscriptions.forEach((raid,index) => {
-          if(raid.min_lvl == 'Boss Specified'){ raid_levels = 'Boss Specified'; }
-          else{ raid_levels = raid.min_lvl+'/'+raid.max_lvl; }
-          instruction.addField('#'+(index+1), 'Gym: `'+raid.gym+'`\nRaid Boss: `'+raid.boss+'`\nMin/Max Lvl: `'+raid_levels+'`\nFiltered by Areas: '+raid.areas, false);
-        }); break;
+        if(object.subscriptions.length < 25){
+          object.subscriptions.forEach((raid,index) => {
+            if(raid.min_lvl == 'Boss Specified'){ raid_levels = 'Boss Specified'; }
+            else{ raid_levels = raid.min_lvl+'/'+raid.max_lvl; }
+            instruction.addField('#'+(index+1), 'Gym: `'+raid.gym+'`\nRaid Boss: `'+raid.boss+'`\nMin/Max Lvl: `'+raid_levels+'`\nFiltered by Areas: '+raid.areas, false);
+          }); break;
+        } else {
+          instruction.addField('Too many descriptions to display');
+          break;
+        }
 
       // AREA EMBED
       case 'Area Filter':
